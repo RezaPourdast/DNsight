@@ -1,0 +1,39 @@
+# Rust
+target/
+Cargo.lock
+
+# Build artifacts
+*.exe
+*.pdb
+*.dll
+*.lib
+*.exp
+*.ilk
+*.obj
+
+# Installer output
+installer/
+*.iss.bak
+
+# Redistributables (download separately)
+redist/*.exe
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
