@@ -1,6 +1,6 @@
 # Rust
 target/
-Cargo.lock
+# Note: Cargo.lock is kept for binaries to ensure reproducible builds
 
 # Build artifacts
 *.exe
@@ -14,6 +14,11 @@ Cargo.lock
 # Installer output
 installer/
 *.iss.bak
+
+# Release packages (use GitHub Releases instead)
+*.zip
+*.tar.gz
+*.tar.xz
 
 # Redistributables (download separately)
 redist/*.exe
@@ -36,4 +41,9 @@ desktop.ini
 # Temporary files
 *.tmp
 *.temp
+release-package/
+
+# Development helper scripts (optional - remove if not needed)
+# rebuild-installer.ps1
+# clear-icon-cache.ps1
 
