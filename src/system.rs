@@ -1,5 +1,3 @@
-//! Platform-specific helpers for interacting with Windows networking.
-
 use std::os::windows::process::CommandExt;
 use std::process::{Command, Stdio};
 
@@ -7,9 +5,8 @@ use regex::Regex;
 
 use crate::domain::OperationResult;
 
-const CREATE_NO_WINDOW: u32 = 0x0800_0000; // Hide console window
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
-/// Run `netsh` with the provided arguments.
 fn run_netsh(args: &[&str]) -> std::process::Output {
     Command::new("netsh")
         .args(args)
@@ -22,7 +19,6 @@ fn run_netsh(args: &[&str]) -> std::process::Output {
         .expect("Failed to wait for netsh")
 }
 
-/// Get the currently active adapter name.
 pub fn get_active_adapter() -> Option<String> {
     let output = run_netsh(&["interface", "show", "interface"]);
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -36,7 +32,6 @@ pub fn get_active_adapter() -> Option<String> {
     None
 }
 
-/// Return DNS servers currently configured for the adapter.
 pub fn get_current_dns(adapter: &str) -> Vec<String> {
     let output = run_netsh(&[
         "interface",
@@ -53,7 +48,6 @@ pub fn get_current_dns(adapter: &str) -> Vec<String> {
         .collect()
 }
 
-/// Set DNS servers and return a result suitable for UI consumption.
 pub fn set_dns_with_result(interface: &str, primary: &str, secondary: &str) -> OperationResult {
     let output1 = run_netsh(&[
         "interface",
@@ -97,7 +91,6 @@ pub fn set_dns_with_result(interface: &str, primary: &str, secondary: &str) -> O
     ))
 }
 
-/// Clear DNS and return a UI-friendly result.
 pub fn clear_dns_with_result(interface: &str) -> OperationResult {
     let output = run_netsh(&[
         "interface",

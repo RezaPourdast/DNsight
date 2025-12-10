@@ -14,6 +14,7 @@ Uninstallable=yes
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64
 MinVersion=6.1sp1
+SetupIconFile=asset\logo.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -24,7 +25,7 @@ Name: "startmenuicon"; Description: "Create a &Start Menu icon"; GroupDescriptio
 
 [Files]
 Source: "target\release\dnsight.exe"; DestDir: "{app}"; Flags: ignoreversion; DestName: "DNsight.exe"
-Source: "asset\*.png"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs
+Source: "asset\*.png"; DestDir: "{app}\asset"; Flags: ignoreversion recursesubdirs
 Source: "redist\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedistNeedsInstall
 
 [Icons]

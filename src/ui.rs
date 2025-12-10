@@ -1,14 +1,7 @@
-//! UI constants, theme configuration, and rendering functions.
-
 use eframe::egui::{self, TextureHandle, Vec2};
 
 use crate::domain::{AppState, DnsProvider, DnsState};
 
-// ============================================================================
-// UI CONSTANTS
-// ============================================================================
-
-/// UI spacing constants
 pub mod ui_constants {
     pub const SPACING_SMALL: f32 = 10.0;
     pub const _SPACING_MEDIUM: f32 = 20.0;
@@ -20,10 +13,8 @@ pub mod ui_constants {
     pub const BUTTON_SPACING: f32 = 3.0;
 
     pub const TITLE_BAR_HEIGHT: f32 = 30.0;
-    pub const _WINDOW_PADDING: f32 = 4.0; // Reserved for future use
 }
 
-/// UI color constants
 pub mod ui_colors {
     use eframe::egui::Color32;
 
@@ -43,30 +34,18 @@ pub mod ui_colors {
 use ui_colors::*;
 use ui_constants::*;
 
-// ============================================================================
-// THEME CONFIGURATION
-// ============================================================================
-
 use std::sync::atomic::{AtomicBool, Ordering};
 
-// Track if theme has been configured
 static THEME_CONFIGURED: AtomicBool = AtomicBool::new(false);
 
-/// Configure UI theme and styling.
 pub fn configure_theme(ctx: &egui::Context) {
     if !THEME_CONFIGURED.swap(true, Ordering::SeqCst) {
         let mut style = (*ctx.style()).clone();
-        // Configure spacing
         style.spacing.item_spacing = egui::vec2(SPACING_SMALL, SPACING_SMALL);
         ctx.set_style(style);
     }
 }
 
-// ============================================================================
-// UI RENDERING FUNCTIONS
-// ============================================================================
-
-/// Render IP address input field with validation.
 pub fn render_ip_input(ui: &mut egui::Ui, ip: &mut String, label: &str) -> bool {
     ui.horizontal(|ui| {
         ui.label(egui::RichText::new(format!("{}: ", label)).color(egui::Color32::WHITE));
@@ -90,7 +69,6 @@ pub fn render_ip_input(ui: &mut egui::Ui, ip: &mut String, label: &str) -> bool 
     ip.is_empty() || is_valid_ip(ip)
 }
 
-/// Validate IP address format.
 pub fn is_valid_ip(ip: &str) -> bool {
     let parts: Vec<&str> = ip.split('.').collect();
     if parts.len() != 4 {
@@ -104,7 +82,6 @@ pub fn is_valid_ip(ip: &str) -> bool {
     true
 }
 
-/// Render status section showing current DNS configuration.
 pub fn render_status_section(
     ui: &mut egui::Ui,
     dns_state: &DnsState,
@@ -156,7 +133,6 @@ pub fn render_status_section(
         DnsState::None => {
             ui.colored_label(STATUS_NONE, "❌ No DNS Configuration");
 
-            // Show DNSIGHT only when app is Idle or Processing
             let show_app_name = matches!(app_state, AppState::Idle | AppState::Processing);
             if show_app_name {
                 ui.add_space(50.0);
@@ -170,7 +146,6 @@ pub fn render_status_section(
     }
 }
 
-/// Render provider selection dropdown.
 pub fn render_provider_selection(
     ui: &mut egui::Ui,
     selected_provider: &DnsProvider,
@@ -193,7 +168,6 @@ pub fn render_provider_selection(
         ),
     ];
 
-    // Add saved entries
     for entry in saved_entries {
         providers.push((
             &entry.name,
@@ -205,7 +179,6 @@ pub fn render_provider_selection(
         ));
     }
 
-    // Add "+" option at the end
     providers.push(("+", DnsProvider::custom(String::new(), String::new())));
 
     let current_index = providers
@@ -220,17 +193,14 @@ pub fn render_provider_selection(
     let should_open_custom = std::cell::Cell::new(false);
 
     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
-        // Store original styles
         let original_padding = ui.style().spacing.button_padding;
         let original_bg_fill = ui.style().visuals.widgets.inactive.bg_fill;
         let original_corner_radius = ui.style().visuals.widgets.inactive.corner_radius;
 
-        // Calculate padding to achieve button height
         let text_size = ui.style().text_styles[&egui::TextStyle::Body].size;
         let vertical_padding = ((BUTTON_HEIGHT / 2.0 + 5.0) - text_size) / 2.0;
         ui.style_mut().spacing.button_padding = egui::vec2(8.0, vertical_padding.max(0.0));
 
-        // Make combobox semi-transparent with rounded corners
         let bg_opacity = 45;
         let dark_gray = 255;
         ui.style_mut().visuals.widgets.inactive.bg_fill =
@@ -275,7 +245,6 @@ pub fn render_provider_selection(
                 ui.style_mut().visuals.override_text_color = Some(egui::Color32::WHITE);
 
                 for (name, provider) in &providers {
-                    // Handle "+" option separately
                     if *name == "+" {
                         if ui.selectable_label(false, "➕ Add New").clicked() {
                             on_add_new();
@@ -304,7 +273,6 @@ pub fn render_provider_selection(
                 }
             });
 
-        // Restore original styles
         ui.style_mut().spacing.button_padding = original_padding;
         ui.style_mut().visuals.widgets.inactive.bg_fill = original_bg_fill;
         ui.style_mut().visuals.widgets.inactive.corner_radius = original_corner_radius;
@@ -318,7 +286,6 @@ pub fn render_provider_selection(
     }
 }
 
-/// Render application state (idle, processing, success, error, warning).
 pub fn render_app_state(ui: &mut egui::Ui, app_state: &AppState) {
     match app_state {
         AppState::Idle => {}
@@ -340,7 +307,6 @@ pub fn render_app_state(ui: &mut egui::Ui, app_state: &AppState) {
     }
 }
 
-/// Render action buttons (Set DNS, Clear DNS, and optionally Delete for saved entries).
 pub fn render_action_buttons(
     ui: &mut egui::Ui,
     provider_name: &str,
@@ -349,7 +315,6 @@ pub fn render_action_buttons(
     on_delete: Option<impl FnOnce()>,
 ) {
     ui.vertical_centered(|ui| {
-        // Set DNS button
         if ui
             .add_sized(
                 Vec2::new(BUTTON_WIDTH, BUTTON_HEIGHT),
@@ -369,7 +334,6 @@ pub fn render_action_buttons(
 
         ui.add_space(BUTTON_SPACING);
 
-        // Clear DNS button
         if ui
             .add_sized(
                 Vec2::new(BUTTON_WIDTH, BUTTON_HEIGHT),
@@ -387,18 +351,17 @@ pub fn render_action_buttons(
             on_clear_dns();
         }
 
-        // Delete button for saved entries (only shown when on_delete is Some)
         if let Some(delete_callback) = on_delete {
             ui.add_space(BUTTON_SPACING);
             if ui
                 .add_sized(
-                    Vec2::new(BUTTON_WIDTH / 2.0, 30.0), // Half width, smaller height
+                    Vec2::new(BUTTON_WIDTH / 2.0, 30.0),
                     egui::Button::new(
                         egui::RichText::new(format!("Delete ({})", provider_name))
                             .color(egui::Color32::WHITE)
                             .size(12.0),
                     )
-                    .fill(egui::Color32::from_rgba_unmultiplied(100, 100, 100, 100)) // Gray transparent
+                    .fill(egui::Color32::from_rgba_unmultiplied(100, 100, 100, 100))
                     .corner_radius(6),
                 )
                 .clicked()
@@ -409,7 +372,6 @@ pub fn render_action_buttons(
     });
 }
 
-/// Render footer with social media links.
 pub fn render_footer(
     ui: &mut egui::Ui,
     social_logos: &std::collections::HashMap<String, TextureHandle>,
@@ -420,7 +382,6 @@ pub fn render_footer(
     let light_gray = egui::Color32::from_rgb(180, 180, 180);
 
     ui.vertical(|ui| {
-        // Reduce spacing when delete button is shown to keep icons in place
         let top_spacing = if has_delete_button { 10.0 } else { 40.0 };
         ui.add_space(top_spacing);
         ui.horizontal(|ui| {
@@ -464,14 +425,12 @@ pub fn render_footer(
     });
 }
 
-/// Render ping monitor window content.
 pub fn render_ping_window_content(
     ui: &mut egui::Ui,
     ctx: &egui::Context,
     ping_value: f64,
     ping_history: &[f64],
 ) {
-    // Draw ping background image with low opacity if available
     if let Some(texture) =
         ctx.data(|d| d.get_temp::<Option<TextureHandle>>(egui::Id::new("ping_background_texture")))
     {
@@ -510,7 +469,6 @@ pub fn render_ping_window_content(
 
         ui.add_space(10.0);
 
-        // Ping history chart
         if !ping_history.is_empty() {
             let line_color = if ping_value == 0.0 {
                 egui::Color32::LIGHT_GRAY
@@ -531,14 +489,12 @@ pub fn render_ping_window_content(
 
             let painter = ui.painter();
 
-            // Draw background
             painter.rect_filled(
                 chart_rect,
                 0.0,
                 egui::Color32::from_rgba_unmultiplied(20, 20, 20, 100),
             );
 
-            // Find min/max for scaling
             let min_val = ping_history
                 .iter()
                 .copied()
@@ -551,7 +507,6 @@ pub fn render_ping_window_content(
                 .max(100.0);
             let range = (max_val - min_val).max(1.0);
 
-            // Draw grid lines
             let grid_color = egui::Color32::from_rgba_unmultiplied(150, 150, 150, 30);
             for i in 0..=4 {
                 let y = chart_rect.min.y + (chart_rect.height() / 4.0) * i as f32;
@@ -579,7 +534,6 @@ pub fn render_ping_window_content(
                 }
             }
 
-            // Draw ping line
             if ping_history.len() > 1 {
                 let points: Vec<egui::Pos2> = ping_history
                     .iter()
@@ -602,11 +556,10 @@ pub fn render_ping_window_content(
                 }
 
                 for point in &points {
-                    painter.circle_filled(*point, 3.0, line_color);
+                    painter.circle_filled(*point, 3.0, line_color                    );
                 }
             }
 
-            // Draw Y-axis labels
             let label_color = egui::Color32::WHITE;
             for i in 0..=4 {
                 let value = max_val - (range / 4.0) * i as f64;
@@ -620,7 +573,6 @@ pub fn render_ping_window_content(
                 );
             }
 
-            // Show average of last 15 pings
             let avg = if ping_history.is_empty() {
                 0.0
             } else {
@@ -648,7 +600,6 @@ pub fn render_ping_window_content(
     });
 }
 
-/// Render custom DNS window content.
 pub fn render_custom_dns_window_content(
     ui: &mut egui::Ui,
     ctx: &egui::Context,
@@ -657,7 +608,6 @@ pub fn render_custom_dns_window_content(
     on_save: impl FnOnce(),
     on_clear: impl FnOnce(),
 ) {
-    // Draw custom DNS background image with low opacity if available
     if let Some(texture) = ctx.data(|d| {
         d.get_temp::<Option<TextureHandle>>(egui::Id::new("custom_dns_background_texture"))
     }) {
@@ -752,7 +702,6 @@ pub fn render_custom_dns_window_content(
     });
 }
 
-/// Render add DNS window content (similar to custom DNS but with name field).
 pub fn render_add_dns_window_content(
     ui: &mut egui::Ui,
     ctx: &egui::Context,
@@ -763,7 +712,6 @@ pub fn render_add_dns_window_content(
     on_save: impl FnOnce(),
     on_cancel: impl FnOnce(),
 ) {
-    // Draw custom DNS background image with low opacity if available
     if let Some(texture) = ctx.data(|d| {
         d.get_temp::<Option<TextureHandle>>(egui::Id::new("custom_dns_background_texture"))
     }) {
@@ -803,7 +751,6 @@ pub fn render_add_dns_window_content(
                 ui.vertical(|ui| {
                     ui.add_space(12.0);
 
-                    // Name input field
                     ui.horizontal(|ui| {
                         ui.label(egui::RichText::new("Name:      ").color(egui::Color32::WHITE));
                         ui.add_sized(
@@ -812,7 +759,6 @@ pub fn render_add_dns_window_content(
                         );
                     });
 
-                    // Show error message under name input if present
                     if let Some(error) = error_message {
                         ui.label(
                             egui::RichText::new(error)

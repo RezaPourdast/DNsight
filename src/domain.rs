@@ -1,16 +1,12 @@
-//! Domain types representing DNS providers, operations, and app state.
-
 use serde::{Deserialize, Serialize};
 
-/// Represents a saved DNS entry with a custom name.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SavedDnsEntry {
     pub name: String,
     pub primary: String,
-    pub secondary: String,
+    pub     secondary: String,
 }
 
-/// Represents different DNS providers with their server configurations.
 #[derive(Debug, Clone, PartialEq)]
 pub enum DnsProvider {
     Electro {
@@ -45,7 +41,6 @@ pub enum DnsProvider {
 }
 
 impl DnsProvider {
-    /// Create Electro DNS provider.
     pub fn electro() -> Self {
         Self::Electro {
             primary: "78.157.42.100".to_string(),
@@ -53,7 +48,6 @@ impl DnsProvider {
         }
     }
 
-    /// Create Radar DNS provider.
     pub fn radar() -> Self {
         Self::Radar {
             primary: "10.202.10.10".to_string(),
@@ -61,7 +55,6 @@ impl DnsProvider {
         }
     }
 
-    /// Create Shekan DNS provider.
     pub fn shekan() -> Self {
         Self::Shekan {
             primary: "178.22.122.100".to_string(),
@@ -69,7 +62,6 @@ impl DnsProvider {
         }
     }
 
-    /// Create Bogzar DNS provider.
     pub fn bogzar() -> Self {
         Self::Bogzar {
             primary: "185.55.226.26".to_string(),
@@ -77,7 +69,6 @@ impl DnsProvider {
         }
     }
 
-    /// Create Quad9 DNS provider.
     pub fn quad9() -> Self {
         Self::Quad9 {
             primary: "9.9.9.9".to_string(),
@@ -85,12 +76,10 @@ impl DnsProvider {
         }
     }
 
-    /// Create custom DNS provider.
     pub fn custom(primary: String, secondary: String) -> Self {
         Self::Custom { primary, secondary }
     }
 
-    /// Create saved DNS provider.
     pub fn saved(name: String, primary: String, secondary: String) -> Self {
         Self::Saved {
             name,
@@ -99,7 +88,6 @@ impl DnsProvider {
         }
     }
 
-    /// Get DNS servers as tuple.
     pub fn get_servers(&self) -> (String, String) {
         match self {
             DnsProvider::Electro { primary, secondary }
@@ -114,7 +102,6 @@ impl DnsProvider {
         }
     }
 
-    /// Get display name for UI.
     pub fn display_name(&self) -> String {
         match self {
             DnsProvider::Electro { .. } => "Electro".to_string(),
@@ -126,21 +113,8 @@ impl DnsProvider {
             DnsProvider::Saved { name, .. } => name.clone(),
         }
     }
-
-    // Get description for UI.
-    // pub fn description(&self) -> &'static str {
-    //     match self {
-    //         DnsProvider::Electro { .. } => "Fast gaming DNS",
-    //         DnsProvider::Radar { .. } => "Fast gaming DNS",
-    //         DnsProvider::Shekan { .. } => "Fast gaming DNS",
-    //         DnsProvider::Bogzar { .. } => "Fast gaming DNS",
-    //         DnsProvider::Quad9 { .. } => "Security-focused",
-    //         DnsProvider::Custom { .. } => "User-defined servers",
-    //     }
-    // }
 }
 
-/// Represents different DNS operations.
 #[derive(Debug, Clone, PartialEq)]
 pub enum DnsOperation {
     Set(DnsProvider),
@@ -148,7 +122,6 @@ pub enum DnsOperation {
     Test,
 }
 
-/// Represents the result of a DNS operation.
 #[derive(Debug, Clone, PartialEq)]
 pub enum OperationResult {
     Success(String),
@@ -156,7 +129,6 @@ pub enum OperationResult {
     Warning(String),
 }
 
-/// Represents the current state of the application.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum AppState {
     #[default]
@@ -167,7 +139,6 @@ pub enum AppState {
     Warning(String),
 }
 
-/// Represents DNS configuration states.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum DnsState {
     Static(Vec<String>),

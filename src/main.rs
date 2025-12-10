@@ -1,5 +1,3 @@
-//! DNsight - Windows GUI for managing DNS settings
-
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod app;

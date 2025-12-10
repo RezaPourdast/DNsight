@@ -1,11 +1,8 @@
-//! Storage module for persisting saved DNS entries.
-
 use std::fs;
 use std::path::PathBuf;
 
 use crate::domain::SavedDnsEntry;
 
-/// Get the path to the storage file.
 fn get_storage_path() -> PathBuf {
     let mut path = dirs::data_local_dir().unwrap_or_else(|| PathBuf::from("."));
     path.push("dnsight");
@@ -14,7 +11,6 @@ fn get_storage_path() -> PathBuf {
     path
 }
 
-/// Load saved DNS entries from storage.
 pub fn load_saved_dns() -> Vec<SavedDnsEntry> {
     let path = get_storage_path();
 
@@ -31,7 +27,6 @@ pub fn load_saved_dns() -> Vec<SavedDnsEntry> {
     }
 }
 
-/// Save DNS entries to storage.
 pub fn save_dns_entries(entries: &[SavedDnsEntry]) -> Result<(), String> {
     let path = get_storage_path();
 
@@ -43,14 +38,12 @@ pub fn save_dns_entries(entries: &[SavedDnsEntry]) -> Result<(), String> {
     Ok(())
 }
 
-/// Add a new DNS entry to storage.
 pub fn add_saved_dns(entry: SavedDnsEntry) -> Result<(), String> {
     let mut entries = load_saved_dns();
     entries.push(entry);
     save_dns_entries(&entries)
 }
 
-/// Delete a DNS entry from storage by name.
 pub fn delete_saved_dns(name: &str) -> Result<(), String> {
     let mut entries = load_saved_dns();
     entries.retain(|e| e.name != name);

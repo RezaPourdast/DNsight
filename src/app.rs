@@ -1,5 +1,3 @@
-//! Application state, egui integration, and main app logic.
-
 use ping;
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -27,7 +25,6 @@ use crate::ui::{
 };
 use crate::windows::{custom_window_frame, simple_window_frame};
 
-/// Main application container used by eframe.
 #[derive(Default)]
 pub struct MyApp {
     adapter: Option<String>,
@@ -58,8 +55,6 @@ pub struct MyApp {
     social_logos: std::collections::HashMap<String, TextureHandle>,
 }
 
-// When the title-bar ping button is clicked we set this flag.
-// `update()` will pick it up and start the ping thread / open the window.
 static PING_REQUEST: AtomicBool = AtomicBool::new(false);
 
 impl MyApp {
@@ -276,7 +271,6 @@ impl MyApp {
 
         self.show_custom_dns_window = keep_open.get();
 
-        // Update provider when Custom is selected (sync IPs in real-time)
         if matches!(self.selected_provider, DnsProvider::Custom { .. }) {
             self.selected_provider =
                 DnsProvider::custom(self.custom_primary.clone(), self.custom_secondary.clone());
@@ -342,7 +336,6 @@ impl MyApp {
                         );
                     });
 
-                    // Close window only if save was successful
                     if should_close.get() {
                         keep_open.set(false);
                     }
@@ -357,7 +350,6 @@ impl MyApp {
             let secondary_valid = !self.new_dns_secondary.trim().is_empty()
                 && crate::ui::is_valid_ip(&self.new_dns_secondary);
 
-            // Check if name already exists
             let name_trimmed = self.new_dns_name.trim();
             let name_exists = self
                 .saved_dns_entries
@@ -370,7 +362,6 @@ impl MyApp {
                     name_trimmed
                 ));
             } else if name_valid && primary_valid && secondary_valid {
-                // Clear any previous errors
                 self.add_dns_error = None;
                 let entry = SavedDnsEntry {
                     name: name_trimmed.to_string(),
@@ -380,31 +371,25 @@ impl MyApp {
 
                 if let Err(e) = add_saved_dns(entry.clone()) {
                     self.add_dns_error = Some(format!("Failed to save DNS: {}", e));
-                    // Keep window open on error
                 } else {
                     self.saved_dns_entries.push(entry.clone());
-                    // Auto-select the newly created entry
                     self.selected_provider = DnsProvider::saved(
                         entry.name.clone(),
                         entry.primary.clone(),
                         entry.secondary.clone(),
                     );
                     self.app_state = AppState::Success("DNS saved successfully!".to_string());
-                    // Clear fields
                     self.new_dns_name.clear();
                     self.new_dns_primary.clear();
                     self.new_dns_secondary.clear();
-                    // Close window on successful save
                     should_close.set(true);
                 }
             } else {
                 self.add_dns_error =
                     Some("Please enter a valid name and DNS IP addresses".to_string());
-                // Keep window open on validation error
             }
         }
 
-        // Only close window if save was successful, otherwise keep it open
         if should_close.get() {
             self.show_add_dns_window = false;
         } else {
@@ -412,7 +397,6 @@ impl MyApp {
         }
 
         if !self.show_add_dns_window {
-            // Clear fields and error when window is closed
             self.new_dns_name.clear();
             self.new_dns_primary.clear();
             self.new_dns_secondary.clear();
@@ -426,11 +410,9 @@ impl eframe::App for MyApp {
         egui::Rgba::TRANSPARENT.to_array()
     }
 
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Configure theme once on first update
+        fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         ui::configure_theme(ctx);
 
-        // Load textures on first update
         if self.background_texture.is_none() {
             self.background_texture = load_background_image(ctx);
         }
@@ -444,7 +426,6 @@ impl eframe::App for MyApp {
             self.social_logos = load_social_logos(ctx);
         }
 
-        // Store textures in context for windows to access
         if let Some(ref texture) = self.background_texture {
             ctx.data_mut(|d| {
                 d.insert_temp(egui::Id::new("background_texture"), Some(texture.clone()));
@@ -467,7 +448,6 @@ impl eframe::App for MyApp {
             });
         }
 
-        // Handle operation results
         if let Some(receiver) = &self.operation_receiver {
             if let Ok(result) = receiver.try_recv() {
                 self.handle_operation_result(result);
@@ -479,7 +459,6 @@ impl eframe::App for MyApp {
             }
         }
 
-        // Check for ping updates
         if let Some(ping_rx) = &self.ping_receiver {
             if let Ok(ping) = ping_rx.try_recv() {
                 self.ping_value = ping;
@@ -491,14 +470,12 @@ impl eframe::App for MyApp {
             }
         }
 
-        // Main window content
         custom_window_frame(
             ctx,
             "",
             |ui| {
                 use ui_constants::*;
 
-                // Status Section
                 ui.horizontal(|ui| {
                     ui.set_max_width(230.0);
                     ui.set_max_height(165.0);
@@ -521,7 +498,6 @@ impl eframe::App for MyApp {
                             }
                             render_app_state(ui, &self.app_state);
                         });
-                        // Handle test operation after UI rendering to avoid borrow conflicts
                         if ui
                             .ctx()
                             .input(|i| i.key_pressed(egui::Key::T) && i.modifiers.ctrl)
@@ -531,7 +507,6 @@ impl eframe::App for MyApp {
                     });
                 });
 
-                // DNS List Section
                 ui.horizontal(|ui| {
                     ui.set_max_width(230.0);
                     let frame = egui::Frame::group(ui.style())
@@ -594,7 +569,6 @@ impl eframe::App for MyApp {
 
                             let provider_name = selected_provider.display_name();
 
-                            // Check if selected provider is a saved entry
                             let delete_callback =
                                 if let DnsProvider::Saved { name, .. } = &selected_provider {
                                     let entry_name = name.clone();
@@ -618,14 +592,12 @@ impl eframe::App for MyApp {
                                 delete_callback,
                             );
 
-                            // Handle deletion
                             if let Some(name) = delete_entry_name.take() {
                                 if let Err(e) = delete_saved_dns(&name) {
                                     self.app_state =
                                         AppState::Error(format!("Failed to delete DNS: {}", e));
                                 } else {
                                     self.saved_dns_entries.retain(|e| e.name != name);
-                                    // If the deleted entry was selected, reset to default
                                     if let DnsProvider::Saved {
                                         name: selected_name,
                                         ..
@@ -649,20 +621,17 @@ impl eframe::App for MyApp {
                                 self.show_clear_confirmation = true;
                             }
                         });
+                        });
                     });
-                });
 
-                // Footer
                 let has_delete_button = matches!(self.selected_provider, DnsProvider::Saved { .. });
                 render_footer(ui, &self.social_logos, has_delete_button);
             },
             || {
-                // Ping button clicked callback
                 PING_REQUEST.store(true, Ordering::SeqCst);
             },
         );
 
-        // Handle ping request
         if PING_REQUEST.swap(false, Ordering::SeqCst) {
             if self.ping_sender.is_none() {
                 let (tx, rx) = mpsc::channel::<f64>();
@@ -686,7 +655,6 @@ impl eframe::App for MyApp {
         self.render_custom_dns_window(ctx);
         self.render_add_dns_window(ctx);
 
-        // Show confirmation dialog for Clear DNS
         if self.show_clear_confirmation {
             use ui_colors::{BUTTON_SUCCESS, BUTTON_TEXT};
 

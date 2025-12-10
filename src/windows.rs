@@ -1,12 +1,9 @@
-//! Custom window frame implementations with title bars and controls.
-
 use eframe::egui::{
     self, CentralPanel, Id, PointerButton, Sense, TextureHandle, UiBuilder, ViewportCommand,
 };
 
 use crate::ui::ui_constants::TITLE_BAR_HEIGHT;
 
-/// Custom window frame with title bar, background image support, and controls.
 pub fn custom_window_frame(
     ctx: &egui::Context,
     _title: &str,
@@ -21,13 +18,11 @@ pub fn custom_window_frame(
     CentralPanel::default().frame(panel_frame).show(ctx, |ui| {
         let app_rect = ui.max_rect();
 
-        // Draw background image with low opacity if available
         if let Some(texture) =
             ctx.data(|d| d.get_temp::<Option<TextureHandle>>(egui::Id::new("background_texture")))
         {
             if let Some(ref tex) = texture {
                 let painter = ui.painter();
-                // Increased opacity for more visible background (0.3 = 30% opacity)
                 let tint =
                     egui::Color32::from_rgba_unmultiplied(255, 255, 255, (255.0 * 0.3) as u8);
                 painter.image(
@@ -49,7 +44,7 @@ pub fn custom_window_frame(
 
         let content_rect = {
             let mut rect = app_rect;
-            rect.min.y = title_bar_rect.max.y + 4.0; // Add 8px margin from top of header
+            rect.min.y = title_bar_rect.max.y + 4.0;
             rect
         }
         .shrink(4.0);
@@ -59,7 +54,6 @@ pub fn custom_window_frame(
     });
 }
 
-/// Title bar UI with ping button, minimize, and close controls.
 pub fn title_bar_ui(
     ui: &mut egui::Ui,
     title_bar_rect: eframe::epaint::Rect,
@@ -72,7 +66,6 @@ pub fn title_bar_ui(
         Sense::click_and_drag(),
     );
 
-    // Left-side (top-left) controls: ping button
     ui.scope_builder(
         UiBuilder::new()
             .max_rect(title_bar_rect)
@@ -94,7 +87,6 @@ pub fn title_bar_ui(
                 on_ping_click();
             }
 
-            // keep remaining left-side space empty
             ui.add_space(4.0);
         },
     );
@@ -118,7 +110,6 @@ pub fn title_bar_ui(
     );
 }
 
-/// Show a minimize button for the native window.
 pub fn minimize_button(ui: &mut egui::Ui) {
     let button_height = 20.0;
 
@@ -134,7 +125,6 @@ pub fn minimize_button(ui: &mut egui::Ui) {
     }
 }
 
-/// Show a close button for the native window.
 pub fn close_button(ui: &mut egui::Ui) {
     let button_height = 20.0;
 
@@ -150,7 +140,6 @@ pub fn close_button(ui: &mut egui::Ui) {
     }
 }
 
-/// Simple window frame with title bar that only has a close button.
 pub fn simple_window_frame(ctx: &egui::Context, add_contents: impl FnOnce(&mut egui::Ui)) {
     let panel_frame = egui::Frame::new()
         .fill(ctx.style().visuals.window_fill())
@@ -180,7 +169,6 @@ pub fn simple_window_frame(ctx: &egui::Context, add_contents: impl FnOnce(&mut e
     });
 }
 
-/// Title bar UI with only close button and drag functionality.
 pub fn simple_title_bar_ui(ui: &mut egui::Ui, title_bar_rect: eframe::epaint::Rect) {
     let title_bar_response = ui.interact(
         title_bar_rect,
