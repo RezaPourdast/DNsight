@@ -16,9 +16,9 @@ Because the app isn’t digitally signed yet, Windows may show an “Unknown Pub
 
 ✅ Don’t worry — this warning appears only because the app doesn’t have a verified certificate yet. The software is completely safe to use.
 
-**Get the latest release from the [GitHub Releases page](https://github.com/RezaPourdast/DNsight/releases)**
-
 ### Latest Release (v1.0.0)
+
+**Get the latest release from the [GitHub Releases page](https://github.com/RezaPourdast/DNsight/releases)**
 
 -**Installer** (Recommended): [Download DNsight-Setup-1.0.0.exe](https://github.com/RezaPourdast/DNsight/releases/download/v1.0.0/DNsight-Setup-1.0.0.exe)
 
