@@ -4,12 +4,25 @@ A Windows GUI application for easily managing DNS server settings on your networ
 
 ## 📥 Download
 
+Before installing, please read this short note:
+
+### ⚠️ Installation Notice
+
+Because the app isn’t digitally signed yet, Windows may show an “Unknown Publisher” or “Unsafe App” warning during installation.
+
+#### Click “More info”
+
+#### Then click “Run anyway”
+
+✅ Don’t worry — this warning appears only because the app doesn’t have a verified certificate yet. The software is completely safe to use.
+
 **Get the latest release from the [GitHub Releases page](https://github.com/RezaPourdast/DNsight/releases)**
 
 ### Latest Release (v1.0.0)
 
-- **Installer** (Recommended): [Download DNsight-Setup-1.0.0.exe](https://github.com/RezaPourdast/DNsight/releases/download/v1.0.0/DNsight-Setup-1.0.0.exe)
-- **Portable ZIP**: [Download DNsight-1.0.0-portable.zip](https://github.com/RezaPourdast/DNsight/releases/download/v1.0.0/DNsight-1.0.0-portable.zip)
+-**Installer** (Recommended): [Download DNsight-Setup-1.0.0.exe](https://github.com/RezaPourdast/DNsight/releases/download/v1.0.0/DNsight-Setup-1.0.0.exe)
+
+-**Portable ZIP**: [Download DNsight-1.0.0-portable.zip](https://github.com/RezaPourdast/DNsight/releases/download/v1.0.0/DNsight-1.0.0-portable.zip)
 
 📦 Visit the [Releases page](https://github.com/RezaPourdast/DNsight/releases) for all versions, release notes, and changelog.
 
@@ -82,11 +95,13 @@ The executable will be in `target/release/dnsight.exe`
 ### Creating an Installer
 
 **Quick Method:**
+
 ```powershell
 .\build-release.ps1
 ```
 
 **Manual Method:**
+
 1. Install [Inno Setup](https://jrsoftware.org/isinfo.php)
 2. Download VC++ Redistributable to `redist\vc_redist.x64.exe` (see `redist\README.md`)
 3. Open `dnsight.iss` in Inno Setup Compiler
